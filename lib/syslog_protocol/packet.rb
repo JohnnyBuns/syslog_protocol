@@ -111,11 +111,17 @@ module SyslogProtocol
 
     def generate_timestamp
       time = @time || Time.now
-      # The timestamp format requires that a day with fewer than 2 digits have
-      # what would normally be a preceding zero, be instead an extra space.
-      day = time.strftime("%d")
-      day = day.sub(/^0/, ' ') if day =~ /^0\d/
-      time.strftime("%b #{day} %H:%M:%S")
+
+      # The timestamp format for ISO8601 requires:
+      #
+      # %Y: Year with century as a decimal number.
+      # %m: Month as a zero-padded decimal number.
+      # %d: Day of the month as a zero-padded decimal number.
+      # %T: 24-hour clock time (equal to %H:%M:%S).
+      # %6N: Microseconds (up to 6 digits).
+      # %:z: Time zone offset in the format +HH:MM.
+
+      time.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z')
     end
 
     if "".respond_to?(:bytesize)
